@@ -1,4 +1,4 @@
-# FIAP Machine Learning Tech Challenge 2
+# FIAP Machine Learning Tech Challenge 3
 
 Utilizar modelagem supervisionada e não 
 supervisionada e desenvolver um pipeline completo de ciência de dados, desde 
