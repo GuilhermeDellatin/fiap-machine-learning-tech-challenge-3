@@ -17,6 +17,10 @@ a exploração dos dados até a interpretação dos resultados.
 
 -----------------------------------
 
+## Descrição
+
+-----------------------------------
+
 ## Tecnologias Utilizadas
 
 - **Python 3.13**
