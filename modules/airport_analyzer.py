@@ -96,6 +96,89 @@ class AirportAnalyzer:
         plt.title(f'Top {top_n} Busiest Flight Routes', fontsize=14)
         plt.legend(loc='lower left')
         plt.show()
+        
+    def plot_extreme_route_delays(self, top_n: int = 30):
+        """
+        Plot the routes with the most extreme average departure delays.
+        Uses Cartopy to draw a North America map and highlights extreme delays.
+        """
+
+        # Ensure metrics exist
+        if not hasattr(self, "df_route_metrics") or self.df_route_metrics is None:
+            self.compute_route_metrics()
+
+        if self.df_metrics is None:
+            self.compute_airport_metrics()
+
+        # Merge route metrics with airport metrics (coordinates already exist)
+        merged = self.df_route_metrics.copy()
+
+        # Pick the top N worst delayed routes
+        worst = merged.nlargest(top_n, 'avg_departure_delay').copy()
+
+        # Map Setup
+        plt.figure(figsize=(14, 10))
+        ax = plt.axes(projection=ccrs.LambertConformal())
+        ax.set_extent([-170, -50, 10, 70], crs=ccrs.PlateCarree())
+
+        # Map features
+        ax.add_feature(cfeature.LAND, facecolor='lightgray')
+        ax.add_feature(cfeature.COASTLINE)
+        ax.add_feature(cfeature.BORDERS, linestyle=':')
+        ax.add_feature(cfeature.STATES, linewidth=0.5)
+
+        # Colors and sizes based on delay severity
+        delays = worst['avg_departure_delay']
+        norm = plt.Normalize(delays.min(), delays.max())
+        cmap = plt.cm.Reds
+
+        # Plot delayed routes
+        for _, row in worst.iterrows():
+            ax.plot(
+                [row['origin_lon'], row['dest_lon']],
+                [row['origin_lat'], row['dest_lat']],
+                color=cmap(norm(row['avg_departure_delay'])),
+                linewidth=1.0 + (row['avg_departure_delay'] / delays.max()) * 4,
+                alpha=0.9,
+                transform=ccrs.PlateCarree()
+            )
+
+        # Plot airports (only those in the worst list)
+        ax.scatter(
+            worst['origin_lon'],
+            worst['origin_lat'],
+            s=20,
+            color='blue',
+            transform=ccrs.PlateCarree()
+        )
+        ax.scatter(
+            worst['dest_lon'],
+            worst['dest_lat'],
+            s=20,
+            color='blue',
+            transform=ccrs.PlateCarree()
+        )
+
+        # Add labels for the worst 10 routes
+        for _, row in worst.head(10).iterrows():
+            ax.text(
+                row['origin_lon'],
+                row['origin_lat'],
+                f"{row['origin_airport']}→{row['destination_airport']}",
+                fontsize=8,
+                transform=ccrs.PlateCarree(),
+                weight='bold'
+            )
+
+        # Colorbar
+        sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+        sm.set_array([])
+        cbar = plt.colorbar(sm, fraction=0.03, pad=0.04)
+        cbar.set_label("Route Avg Departure Delay (minutes)")
+
+        plt.title(f"Top {top_n} Routes With the Most Extreme Departure Delays", fontsize=15)
+        plt.show()
+
 
     # ------------------------------------------------------------------
     # AIRPORT METRICS
@@ -136,7 +219,88 @@ class AirportAnalyzer:
         df_metrics = df_metrics.sort_values('total_flights', ascending=False).reset_index(drop=True)
         self.df_metrics = df_metrics
         return df_metrics
+    
+    # ------------------------------------------------------------------
+    # ROUTE METRICS
+    # ------------------------------------------------------------------
+    def compute_route_metrics(self, top_n: int = None):
+        """
+        Compute metrics for each route (origin → destination):
+            - total number of flights
+            - average arrival and departure delay
+            - min/max delay
+            - attach origin and destination coordinates
 
+        If top_n is provided, returns only the top N busiest routes.
+        """
+
+        # Base route counts
+        route_counts = (
+            self.df_flights
+            .value_counts(['origin_airport', 'destination_airport'])
+            .reset_index(name='total_flights')
+        )
+
+        # Delay metrics per route
+        route_delays = (
+            self.df_flights
+            .groupby(['origin_airport', 'destination_airport'])
+            .agg(
+                avg_departure_delay=('departure_delay', 'mean'),
+                avg_arrival_delay=('arrival_delay', 'mean'),
+                min_departure_delay=('departure_delay', 'min'),
+                max_departure_delay=('departure_delay', 'max'),
+                min_arrival_delay=('arrival_delay', 'min'),
+                max_arrival_delay=('arrival_delay', 'max')
+            )
+            .reset_index()
+        )
+
+        # Merge counts + delay metrics
+        df_routes = route_counts.merge(
+            route_delays,
+            on=['origin_airport', 'destination_airport'],
+            how='left'
+        )
+
+        # -----------------------------
+        # Add ORIGIN coordinates
+        # -----------------------------
+        df_routes = df_routes.merge(
+            self.df_airports[['iata_code', 'latitude', 'longitude']],
+            left_on='origin_airport',
+            right_on='iata_code',
+            how='left'
+        ).rename(columns={
+            'latitude': 'origin_lat',
+            'longitude': 'origin_lon'
+        }).drop(columns=['iata_code'])
+
+        # -----------------------------
+        # Add DESTINATION coordinates
+        # -----------------------------
+        df_routes = df_routes.merge(
+            self.df_airports[['iata_code', 'latitude', 'longitude']],
+            left_on='destination_airport',
+            right_on='iata_code',
+            how='left'
+        ).rename(columns={
+            'latitude': 'dest_lat',
+            'longitude': 'dest_lon'
+        }).drop(columns=['iata_code'])
+
+        # Order by busiest
+        df_routes = df_routes.sort_values('total_flights', ascending=False)
+
+        # Optional filtering
+        if top_n is not None:
+            df_routes = df_routes.head(top_n)
+
+        df_routes = df_routes.reset_index(drop=True)
+        self.df_route_metrics = df_routes
+
+        return df_routes
+    
     # ------------------------------------------------------------------
     # AIRPORT PLOTS
     # ------------------------------------------------------------------
