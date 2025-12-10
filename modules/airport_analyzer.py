@@ -100,7 +100,6 @@ class AirportAnalyzer:
     def plot_extreme_route_delays(self, top_n: int = 30):
         """
         Plot the routes with the most extreme average departure delays.
-        Uses Cartopy to draw a North America map and highlights extreme delays.
         """
 
         # Ensure metrics exist
@@ -110,14 +109,17 @@ class AirportAnalyzer:
         if self.df_metrics is None:
             self.compute_airport_metrics()
 
-        # Merge route metrics with airport metrics (coordinates already exist)
+        # Work on a copy
         merged = self.df_route_metrics.copy()
+
+        # Remove routes with missing coordinates (prevents posx/posy errors)
+        merged = merged.dropna(subset=['origin_lat', 'origin_lon', 'dest_lat', 'dest_lon'])
 
         # Pick the top N worst delayed routes
         worst = merged.nlargest(top_n, 'avg_departure_delay').copy()
 
         # Map Setup
-        plt.figure(figsize=(14, 10))
+        fig = plt.figure(figsize=(14, 10))
         ax = plt.axes(projection=ccrs.LambertConformal())
         ax.set_extent([-170, -50, 10, 70], crs=ccrs.PlateCarree())
 
@@ -127,12 +129,12 @@ class AirportAnalyzer:
         ax.add_feature(cfeature.BORDERS, linestyle=':')
         ax.add_feature(cfeature.STATES, linewidth=0.5)
 
-        # Colors and sizes based on delay severity
+        # Colors and sizes
         delays = worst['avg_departure_delay']
         norm = plt.Normalize(delays.min(), delays.max())
         cmap = plt.cm.Reds
 
-        # Plot delayed routes
+        # Plot each delayed route
         for _, row in worst.iterrows():
             ax.plot(
                 [row['origin_lon'], row['dest_lon']],
@@ -143,18 +145,18 @@ class AirportAnalyzer:
                 transform=ccrs.PlateCarree()
             )
 
-        # Plot airports (only those in the worst list)
+        # Plot airports
         ax.scatter(
             worst['origin_lon'],
             worst['origin_lat'],
-            s=20,
+            s=25,
             color='blue',
             transform=ccrs.PlateCarree()
         )
         ax.scatter(
             worst['dest_lon'],
             worst['dest_lat'],
-            s=20,
+            s=25,
             color='blue',
             transform=ccrs.PlateCarree()
         )
@@ -170,14 +172,17 @@ class AirportAnalyzer:
                 weight='bold'
             )
 
-        # Colorbar
+        # Proper Cartopy colorbar — attach to the figure, not the axis
         sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
         sm.set_array([])
-        cbar = plt.colorbar(sm, fraction=0.03, pad=0.04)
+
+        cbar_ax = fig.add_axes([0.92, 0.25, 0.02, 0.5])  # [left, bottom, width, height]
+        cbar = plt.colorbar(sm, cax=cbar_ax)
         cbar.set_label("Route Avg Departure Delay (minutes)")
 
-        plt.title(f"Top {top_n} Routes With the Most Extreme Departure Delays", fontsize=15)
+        plt.suptitle(f"Top {top_n} Routes With the Most Extreme Departure Delays", fontsize=16)
         plt.show()
+
 
 
     # ------------------------------------------------------------------
