@@ -180,7 +180,11 @@ class AirportAnalyzer:
         cbar = plt.colorbar(sm, cax=cbar_ax)
         cbar.set_label("Route Avg Departure Delay (minutes)")
 
-        plt.suptitle(f"Top {top_n} Routes With the Most Extreme Departure Delays", fontsize=16)
+        ax.set_title(
+            f"Top {top_n} Routes With the Most Extreme Departure Delays",
+            fontsize=16,
+            pad=12
+        )
         plt.show()
 
 
