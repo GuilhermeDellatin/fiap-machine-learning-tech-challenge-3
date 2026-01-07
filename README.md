@@ -1,8 +1,19 @@
 # FIAP Machine Learning Tech Challenge 3
 
-Este projeto tem como objetivo aplicar técnicas de **modelagem supervisionada e não supervisionada** e desenvolver um **pipeline completo de ciência de dados**, abrangendo desde a exploração e preparação dos dados até a interpretação dos resultados e geração de insights acionáveis.
+#### Visão Geral
+Este projeto é um experimento de linha de base (baseline) focado em identificar o "DNA do atraso" na malha aérea. O objetivo é aplicar técnicas de modelagem supervisionada e não supervisionada para entender quanto do atraso de um voo é puramente estrutural — ou seja, o quanto já está "escrito no destino" com base apenas na companhia, na rota e no horário, sem considerar fatores externos imprevisíveis (o fator "Fugazi").
 
-A análise utiliza dados reais de voos comerciais para investigar padrões de atraso, desempenho operacional de aeroportos e rotas, bem como fatores temporais e estruturais que influenciam a probabilidade de atrasos.
+Desenvolvemos um pipeline completo de ciência de dados, que inclui:
+
+- Engenharia de Atributos: Transformação de dados brutos de agendamento em indicadores de risco operacional.
+
+- Análise de Padrões: Investigação de tendências temporais e gargalos geográficos (hubs) que geram um "imposto de atraso" sistemático.
+
+- Machine Learning de Alta Performance: Comparação entre XGBoost e LightGBM para separar o sinal real do ruído estatístico.
+
+- Insights Acionáveis: Interpretação dos resultados para identificar quais variáveis estruturais (como aeroportos de origem ou janelas de decolagem) são os maiores preditores de risco, independentemente de fatores climáticos.
+
+O resultado final não é apenas uma previsão, mas uma análise profunda da eficiência (ou falta dela) na estrutura lógica dos voos comerciais.
 
 | ![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg) |
 |:----------------------------------------------------------------:|
@@ -19,31 +30,33 @@ A análise utiliza dados reais de voos comerciais para investigar padrões de at
 
 -----------------------------------
 
-## Descrição
+## Escopo e Metodologia
 
-O projeto explora dados históricos de voos para compreender o comportamento dos atrasos de partida e chegada, considerando múltiplas dimensões operacionais, temporais e geográficas.  
+O projeto mergulha em dados históricos para decifrar o comportamento dos atrasos, tratando-os como um subproduto das dimensões operacionais, temporais e geográficas.
 
-A análise foca exclusivamente em **voos realizados (não cancelados e não desviados)**, permitindo avaliar atrasos como fenômenos operacionais e não como falhas totais do sistema.
+A análise foca exclusivamente em voos realizados (não cancelados e não desviados). Esta escolha é estratégica: o objetivo não é prever falhas totais do sistema, mas sim avaliar o atraso como um fenômeno de fricção operacional que ocorre mesmo quando o sistema está tecnicamente funcionando.
 
-São utilizadas técnicas de **análise exploratória de dados (EDA)**, engenharia de atributos e visualizações avançadas para identificar:
+Utilizamos análise exploratória de dados (EDA), engenharia de atributos e visualizações avançadas para isolar:
 
-- Diferenças entre atrasos típicos e atrasos extremos  
-- Efeitos de propagação de atrasos ao longo do dia  
-- Variações sazonais e padrões temporais  
-- Relações entre aeroportos, rotas e desempenho operacional  
+- A Variância do Atraso: A distinção entre atrasos típicos (inerentes à operação) e atrasos extremos (anomalias).
 
-Com base nesses insights, modelos de **aprendizado supervisionado** são desenvolvidos para estimar a probabilidade de um voo sofrer atraso, apoiando a tomada de decisão e o entendimento do risco operacional.
+- Inércia Temporal: O efeito de propagação ("efeito cascata") onde o estresse da malha aumenta ao longo do dia.
+
+- Sazonalidade e Estrutura: Como o calendário e a topografia das rotas criam padrões de risco previsíveis.
+
+- Performance de Hubs: A relação entre aeroportos específicos e o desempenho operacional acumulado.
+
+Com base nestes pilares, desenvolvemos modelos de aprendizado supervisionado capazes de estimar a probabilidade de atraso. O resultado é uma ferramenta que quantifica o risco estrutural, servindo de base para uma tomada de decisão mais inteligente e uma compreensão clara da eficiência da malha aérea.
 
 -----------------------------------
 
 ## Objetivos do Projeto
 
-- Investigar os principais fatores que contribuem para atrasos de voos
-- Comparar comportamentos de atraso ao longo do tempo (hora, dia da semana e sazonalidade)
-- Identificar aeroportos e rotas com maior frequência e severidade de atrasos
-- Analisar atrasos extremos e seus fatores determinantes
-- Desenvolver modelos preditivos para estimar a probabilidade de atraso
-- Interpretar os resultados de forma clara e orientada a negócio
+- Descobrir o que mais causa atrasos nos voos.
+- Entender quais horários e dias da semana são mais arriscados para viajar.
+- Listar os aeroportos e rotas que mais sofrem com a falta de pontualidade.
+- Criar modelos de inteligência artificial para calcular a chance de um voo atrasar.
+- Comparar dois modelos (XGBoost e LightGBM) para ver qual é mais preciso.
 
 -----------------------------------
 
@@ -51,28 +64,26 @@ Com base nesses insights, modelos de **aprendizado supervisionado** são desenvo
 
 O pipeline de ciência de dados segue as seguintes etapas:
 
-1. **Exploração e limpeza dos dados**
-   - Tratamento de valores ausentes
-   - Padronização de variáveis temporais
-   - Remoção de atributos redundantes
+1. **Limpeza e Organização**
+   - Tratamento de dados faltantes e padronização de horários.
+   - Remoção de informações redundantes.
 
-2. **Análise exploratória**
-   - Distribuição e variabilidade dos atrasos
-   - Identificação de outliers
-   - Análise temporal (hora, dia, mês)
-   - Análise espacial por aeroportos e rotas
+2. **Raio-X dos Dados (Exploração)**
+   - Análise de como o relógio e o mapa influenciam a pontualidade.
+   - Identificação de padrões visíveis antes de usar os modelos.
 
-3. **Engenharia de atributos**
-   - Criação de variáveis derivadas (atraso binário, horário, sazonalidade)
-   - Agregações por aeroporto e rota
+3. **Clusterização (Agrupamento)**
+   - Uso de Aprendizado Não Supervisionado para agrupar aeroportos/rotas com comportamentos similares.
+   - Objetivo: Identificar "Zonas de Risco" (ex: aeroportos que atrasam muito vs. aeroportos super pontuais).
 
-4. **Modelagem**
-   - Modelos supervisionados para previsão de atraso
-   - Avaliação de desempenho e interpretação dos resultados
+4. **Modelagem: Classificação e Regressão**
+   - Classificação: Prever se o voo vai atrasar (Sim/Não).
+   - Regressão: -----.
+   - Comparação entre XGBoost e LightGBM.
 
-5. **Conclusões e insights operacionais**
-   - Identificação de padrões recorrentes
-   - Implicações para gestão e planejamento operacional
+5. **Veredito e Insights**
+   - Identificação dos fatores que mais pesam na balança dos atrasos.
+   - Conclusões sobre o risco estrutural da malha aérea.
 
 -----------------------------------
 
@@ -86,7 +97,7 @@ O pipeline de ciência de dados segue as seguintes etapas:
 
 -----------------------------------
 
-## Resultados Principais / Key Findings
+## Principais Achados (EDA)
 
 A análise exploratória e os modelos desenvolvidos revelaram padrões consistentes e relevantes sobre o comportamento dos atrasos de voos, tanto em situações rotineiras quanto em cenários de disrupção extrema.
 
@@ -158,6 +169,35 @@ A análise exploratória e os modelos desenvolvidos revelaram padrões consisten
 - Atrasos são fortemente influenciados por fatores temporais e operacionais, tornando modelos baseados apenas em características estáticas insuficientes.
 - Variáveis relacionadas ao horário, histórico operacional e contexto da rota são essenciais para capturar o risco de atraso.
 - A distinção entre atrasos típicos e extremos é fundamental para melhorar a interpretação e a robustez dos modelos preditivos.
+
+## : 🏁 Conclusão: O Veredito do "Fugazi"
+
+### O Sinal no Meio do Caos
+Este projeto começou com um desafio honesto: será que conseguimos prever atrasos sem saber o "básico" (clima, problemas técnicos ou greves)? A resposta é um sim surpreendente. Mesmo operando sob o efeito "Fugazi", onde os dados parecem incompletos, nossos modelos provaram que a malha aérea tem um DNA de atraso próprio e identificável.
+
+### Performance e Modelagem: A Batalha dos Algoritmos
+
+Ao comparar os dois modelos principais, os números contam a história:
+
+- XGBoost: Demonstrou uma sensibilidade maior com um Recall de 0,667. Ele é excelente para não deixar nenhum atraso passar despercebido, mas, por ser mais "agressivo", gerou cerca de 291 mil alarmes falsos.
+
+- LightGBM: Com uma Acurácia de 70,8% e um ROC-AUC de 0,752, ele provou ser muito mais eficiente. Ele conseguiu reduzir os alarmes falsos em mais de 22 mil casos em comparação ao XGBoost, mantendo uma precisão superior.
+
+O gráfico abaixo detalha essa comparação, mostrando como o LightGBM consegue manter uma vantagem consistente na maioria das métricas de desempenho, especialmente no equilíbrio entre precisão e acerto (F1-Score).
+
+![alt text](images/image-9.png)
+
+### Além da Classificação: Regressão e Clusters
+
+- Regressão: Ao tentar prever os minutos exatos do atraso, confirmamos que a falta de dados externos (como clima) cria um "teto de vidro". O modelo consegue identificar que o voo vai atrasar, mas a intensidade exata depende de fatores imprevistos.
+
+- Clusterização: Através do aprendizado não supervisionado, agrupamos aeroportos e rotas em "Zonas de Risco". Os resultados mostraram que o atraso não é distribuído de forma justa pela malha; ele se concentra em gargalos estruturais específicos.
+
+### Insight Final
+
+Chegar a um ROC-AUC de 0,75 utilizando apenas dados de agendamento e histórico prova que o atraso não é apenas "azar": ele é sistêmico. Existe um risco estrutural embutido na escolha da companhia, da rota e, principalmente, do horário.
+
+Este projeto serve como uma base poderosa. Provamos que, mesmo partindo de dados limitados, a ciência de dados consegue extrair padrões valiosos e transformar incerteza em risco calculado.
 
 -----------------------------------
 
