@@ -78,7 +78,9 @@ O pipeline de ciência de dados segue as seguintes etapas:
 
 4. **Modelagem: Classificação e Regressão**
    - Classificação: Prever se o voo vai atrasar (Sim/Não).
-   - Regressão: Prever o atraso de chegada em minutos utilizando  HistGradientBoosting Regressor.
+   - Regressão: Estimar o atraso de chegada em minutos utilizando o 
+     **HistGradientBoostingRegressor**, escolhido por sua capacidade de lidar com
+     não linearidade, interações entre variáveis e targets assimétricos.
    - Comparação entre XGBoost e LightGBM.
 
 5. **Veredito e Insights**
@@ -190,13 +192,29 @@ O gráfico abaixo detalha essa comparação, mostrando como o LightGBM consegue 
 
 ### Além da Classificação: Regressão e Clusters
 
-- Regressão: Ao prever o atraso de chegada em minutos, o modelo demonstrou capacidade de capturar o atraso médio esperado e distinguir voos pontuais de atrasos leves e moderados. Entretanto, a previsão precisa de atrasos severos é limitada pela ausência de variáveis externas, como condições meteorológicas e eventos operacionais imprevistos, o que impõe um limite estrutural de desempenho.
+- **Regressão**: Para estimar o atraso de chegada em minutos, foi utilizado o
+  **HistGradientBoostingRegressor**, um modelo baseado em boosting de árvores
+  otimizado para grandes volumes de dados e relações não lineares.
+
+  O modelo apresentou:
+  - **MAE ≈ 12 minutos**, indicando boa capacidade de prever atrasos típicos e moderados.
+  - **RMSE significativamente maior**, refletindo a presença de poucos atrasos extremos
+    que inflacionam o erro quadrático.
+
+  Essa diferença entre MAE e RMSE evidencia a forte assimetria do target e reforça que
+  atrasos severos são eventos raros, influenciados por fatores não observáveis nos dados
+  pré-voo (ex.: clima e falhas operacionais inesperadas).
+
+  Assim, o modelo é eficaz para capturar o comportamento dominante do sistema, mas
+  encontra limites naturais na previsão de eventos extremos.
 
 - Clusterização: Através do aprendizado não supervisionado, agrupamos aeroportos e rotas em "Zonas de Risco". Os resultados mostraram que o atraso não é distribuído de forma justa pela malha; ele se concentra em gargalos estruturais específicos.
 
 ### Insight Final
 
 Chegar a um ROC-AUC de 0,75 utilizando apenas dados de agendamento e histórico prova que o atraso não é apenas "azar": ele é sistêmico. Existe um risco estrutural embutido na escolha da companhia, da rota e, principalmente, do horário.
+
+Pela regressão, o modelo captura bem os atrasos típicos, enquanto eventos extremos permanecem limitados por fatores não observáveis.
 
 Este projeto serve como uma base poderosa. Provamos que, mesmo partindo de dados limitados, a ciência de dados consegue extrair padrões valiosos e transformar incerteza em risco calculado.
 
