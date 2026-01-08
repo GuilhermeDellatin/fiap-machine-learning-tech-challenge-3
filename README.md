@@ -78,7 +78,7 @@ O pipeline de ciência de dados segue as seguintes etapas:
 
 4. **Modelagem: Classificação e Regressão**
    - Classificação: Prever se o voo vai atrasar (Sim/Não).
-   - Regressão: -----.
+   - Regressão: Prever o atraso de chegada em minutos utilizando  HistGradientBoosting Regressor.
    - Comparação entre XGBoost e LightGBM.
 
 5. **Veredito e Insights**
@@ -115,8 +115,8 @@ A análise exploratória e os modelos desenvolvidos revelaram padrões consisten
 
 
 - Voos classificados como outliers apresentam forte associação com:
-  - **Atraso da aeronave anterior (Late Aircraft Delay)**
   - **Problemas operacionais internos das companhias aéreas (Airline Delay)**
+  - **Atraso da aeronave anterior (Late Aircraft Delay)**
   - **Restrições do sistema aéreo (Air System Delay)**
   - **Condições meteorológicas adversas (Weather Delay)**
 - Em contraste, voos com atrasos normais exibem contribuições baixas e equilibradas desses fatores, indicando que atrasos extremos não são aleatórios, mas resultado de múltiplas falhas acumuladas.
@@ -166,9 +166,10 @@ A análise exploratória e os modelos desenvolvidos revelaram padrões consisten
 - A distância não é a causa direta do atraso, mas atua como um **indicador de risco acumulado**, refletindo maior exposição a congestionamento aéreo, condições meteorológicas e propagação de atrasos ao longo da operação.
 
 ### 7. Implicações para Modelagem Preditiva
-- Atrasos são fortemente influenciados por fatores temporais e operacionais, tornando modelos baseados apenas em características estáticas insuficientes.
-- Variáveis relacionadas ao horário, histórico operacional e contexto da rota são essenciais para capturar o risco de atraso.
-- A distinção entre atrasos típicos e extremos é fundamental para melhorar a interpretação e a robustez dos modelos preditivos.
+- Os atrasos de voos são fortemente influenciados por fatores temporais e operacionais, tornando insuficientes modelos baseados apenas em características estáticas.
+- O comportamento do atraso varia de forma sistemática ao longo do dia e do ano, refletindo efeitos de acúmulo operacional e sazonalidade.
+- Variáveis relacionadas ao horário do voo, ao histórico operacional e ao contexto da rota e dos aeroportos são essenciais para capturar o risco estrutural de atraso.
+- A distinção entre atrasos típicos e atrasos extremos é fundamental, pois eventos severos apresentam maior variabilidade e impõem limites naturais ao desempenho e à interpretação dos modelos preditivos.
 
 ## : 🏁 Conclusão: O Veredito do "Fugazi"
 
@@ -189,7 +190,7 @@ O gráfico abaixo detalha essa comparação, mostrando como o LightGBM consegue 
 
 ### Além da Classificação: Regressão e Clusters
 
-- Regressão: Ao tentar prever os minutos exatos do atraso, confirmamos que a falta de dados externos (como clima) cria um "teto de vidro". O modelo consegue identificar que o voo vai atrasar, mas a intensidade exata depende de fatores imprevistos.
+- Regressão: Ao prever o atraso de chegada em minutos, o modelo demonstrou capacidade de capturar o atraso médio esperado e distinguir voos pontuais de atrasos leves e moderados. Entretanto, a previsão precisa de atrasos severos é limitada pela ausência de variáveis externas, como condições meteorológicas e eventos operacionais imprevistos, o que impõe um limite estrutural de desempenho.
 
 - Clusterização: Através do aprendizado não supervisionado, agrupamos aeroportos e rotas em "Zonas de Risco". Os resultados mostraram que o atraso não é distribuído de forma justa pela malha; ele se concentra em gargalos estruturais específicos.
 
