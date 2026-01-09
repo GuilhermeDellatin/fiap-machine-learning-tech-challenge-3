@@ -72,16 +72,16 @@ O pipeline de ciência de dados segue as seguintes etapas:
    - Análise de como o relógio e o mapa influenciam a pontualidade.
    - Identificação de padrões visíveis antes de usar os modelos.
 
-3. **Clusterização (Agrupamento)**
-   - Uso de Aprendizado Não Supervisionado para agrupar aeroportos/rotas com comportamentos similares.
-   - Objetivo: Identificar "Zonas de Risco" (ex: aeroportos que atrasam muito vs. aeroportos super pontuais).
-
-4. **Modelagem: Classificação e Regressão**
+3. **Modelagem: Classificação e Regressão**
    - Classificação: Prever se o voo vai atrasar (Sim/Não).
    - Regressão: Estimar o atraso de chegada em minutos utilizando o 
      **HistGradientBoostingRegressor**, escolhido por sua capacidade de lidar com
      não linearidade, interações entre variáveis e targets assimétricos.
    - Comparação entre XGBoost e LightGBM.
+
+4. **Clusterização (Agrupamento)**
+   - Uso de Aprendizado Não Supervisionado para agrupar rotas com comportamentos similares.
+   - Objetivo: Identificar "Zonas de Risco" (ex: rotas que atrasam muito vs. rotas super pontuais).
 
 5. **Veredito e Insights**
    - Identificação dos fatores que mais pesam na balança dos atrasos.
@@ -176,11 +176,11 @@ A análise exploratória e os modelos desenvolvidos revelaram padrões consisten
 ## : 🏁 Conclusão: O Veredito do "Fugazi"
 
 ### O Sinal no Meio do Caos
-Este projeto começou com um desafio honesto: será que conseguimos prever atrasos sem saber o "básico" (clima, problemas técnicos ou greves)? A resposta é um sim surpreendente. Mesmo operando sob o efeito "Fugazi", onde os dados parecem incompletos, nossos modelos provaram que a malha aérea tem um DNA de atraso próprio e identificável.
+Este projeto começou com um desafio honesto: será que conseguimos prever atrasos sem saber o "básico" (clima, problemas técnicos ou greves)? A resposta é um sim. Mesmo operando sob o efeito "Fugazi", onde os dados parecem incompletos, nossos modelos provaram que a malha aérea tem um DNA de atraso próprio e identificável.
 
-### Performance e Modelagem: A Batalha dos Algoritmos
+### Performance e Modelagem
 
-Ao comparar os dois modelos principais, os números contam a história:
+Ao comparar os dois modelos principais:
 
 - XGBoost: Demonstrou uma sensibilidade maior com um Recall de 0,667. Ele é excelente para não deixar nenhum atraso passar despercebido, mas, por ser mais "agressivo", gerou cerca de 291 mil alarmes falsos.
 
@@ -190,9 +190,14 @@ O gráfico abaixo detalha essa comparação, mostrando como o LightGBM consegue 
 
 ![alt text](images/image-9.png)
 
-### Além da Classificação: Regressão e Clusters
+### Insights Classificação
 
-- **Regressão**: Para estimar o atraso de chegada em minutos, foi utilizado o
+Chegar a um ROC-AUC de 0,75 utilizando apenas dados de agendamento e histórico prova que o atraso não é apenas "azar": ele é sistêmico. Existe um risco estrutural embutido na escolha da companhia, da rota e, principalmente, do horário.
+Este projeto serve como uma base poderosa. Provamos que, mesmo partindo de dados limitados, conseguimos extrair padrões valiosos e transformar incerteza em risco calculado.
+
+### Regressão
+
+Para estimar o atraso de chegada em minutos, foi utilizado o
   **HistGradientBoostingRegressor**, um modelo baseado em boosting de árvores
   otimizado para grandes volumes de dados e relações não lineares.
 
@@ -201,22 +206,54 @@ O gráfico abaixo detalha essa comparação, mostrando como o LightGBM consegue 
   - **RMSE significativamente maior**, refletindo a presença de poucos atrasos extremos
     que inflacionam o erro quadrático.
 
-  Essa diferença entre MAE e RMSE evidencia a forte assimetria do target e reforça que
-  atrasos severos são eventos raros, influenciados por fatores não observáveis nos dados
-  pré-voo (ex.: clima e falhas operacionais inesperadas).
+Essa diferença entre MAE e RMSE evidencia a forte assimetria do target e reforça que atrasos severos são eventos raros, 
+influenciados por fatores não observáveis nos dados pré-voo (ex.: clima e falhas operacionais inesperadas).
 
-  Assim, o modelo é eficaz para capturar o comportamento dominante do sistema, mas
-  encontra limites naturais na previsão de eventos extremos.
+O gráfico abaixo mostra o valor real de atraso x valor previsto
 
-- Clusterização: Através do aprendizado não supervisionado, agrupamos aeroportos e rotas em "Zonas de Risco". Os resultados mostraram que o atraso não é distribuído de forma justa pela malha; ele se concentra em gargalos estruturais específicos.
+![alt text](images/image-10.png)
 
-### Insight Final
-
-Chegar a um ROC-AUC de 0,75 utilizando apenas dados de agendamento e histórico prova que o atraso não é apenas "azar": ele é sistêmico. Existe um risco estrutural embutido na escolha da companhia, da rota e, principalmente, do horário.
+### Insights Regressão
 
 Pela regressão, o modelo captura bem os atrasos típicos, enquanto eventos extremos permanecem limitados por fatores não observáveis.
+Assim, o modelo é eficaz para capturar o comportamento dominante do sistema, mas encontra limites naturais na 
+previsão de eventos extremos.
 
-Este projeto serve como uma base poderosa. Provamos que, mesmo partindo de dados limitados, a ciência de dados consegue extrair padrões valiosos e transformar incerteza em risco calculado.
+### Clusterização
+
+A clusterização foi feita com K-Means sobre rotas agregadas (origem-destino), usando `avg_delay`, `avg_distance` e `flight_count` com padronização (`StandardScaler`). O objetivo é agrupar rotas com comportamento operacional semelhante.
+
+#### Escolha do K (k=4)
+![alt text](images/image-11.png)
+*Figura 11 - Seleção do número de clusters. O ponto k=4 equilibra a queda de inércia (elbow) e o melhor silhouette.*
+
+- Avaliamos k de 2 a 10 com três critérios: **inércia (elbow)**, **silhouette** e **estabilidade** (ARI médio entre seeds).
+- A regra de decisão foi: 1) maior silhouette, 2) maior estabilidade, 3) menor k como desempate.
+- O k escolhido foi **4**, com **silhouette = 0,2858**, mantendo boa separação com complexidade controlada.
+
+#### Separação dos clusters (distância x atraso)
+![alt text](images/image-12.png)
+*Figura 12 - Dispersão das rotas por distância e atraso. O tamanho da bolha representa a frequência anual e os centróides estão em vermelho.*
+
+- **Eixo X:** `avg_distance`; **Eixo Y:** `avg_delay`; **tamanho da bolha:** `flight_count`.
+- O cluster **long haul** (Cluster 2) aparece isolado em distância elevada, enquanto o **Cluster 0** concentra atrasos acima da média (linha tracejada).
+- Os clusters regionais se sobrepõem em distância, mas se separam pelo nível de atraso médio e pela frequência.
+
+#### Heatmap de perfis (Z-score)
+Para interpretar os clusters, calculamos a média de `avg_delay`, `avg_distance` e `flight_count` por grupo e aplicamos **Z-score**.
+
+O heatmap coloca todas as variáveis na mesma escala: **vermelho = acima da média global**, **azul = abaixo**.
+
+Isso deixa claro quais clusters são mais críticos em atraso, quais concentram rotas longas e quais têm maior volume.
+
+#### Resumo dos clusters
+![alt text](images/image-13.png)
+*Figura 13 - Sumário executivo dos clusters com médias e exemplos representativos.*
+
+- **Cluster 0 (782 rotas):** atraso médio **15,4 min**, distância **972 milhas**, frequência **468 voos/ano**. **Interpretação:** rotas problemáticas (alto atraso). Exemplos: IAH->SFO, IAH->LGA, PBI->JFK.
+- **Cluster 1 (1477 rotas):** atraso médio **10,0 min**, distância **654 milhas**, frequência **2432 voos/ano**. **Interpretação:** regional/baixa densidade (frequência intermediária, atraso moderado). Exemplos: SFO->LAX, LAX->SFO, LAS->LAX.
+- **Cluster 2 (507 rotas):** atraso médio **8,5 min**, distância **2235 milhas**, frequência **975 voos/ano**. **Interpretação:** long haul / transcontinental. Exemplos: JFK->LAX, LAX->JFK, SFO->JFK.
+- **Cluster 3 (1301 rotas):** atraso médio **5,3 min**, distância **613 milhas**, frequência **583 voos/ano**. **Interpretação:** regional/baixa densidade com melhor pontualidade. Exemplos: YUM->PHX, RSW->CLT, SJC->SLC.
 
 -----------------------------------
 
