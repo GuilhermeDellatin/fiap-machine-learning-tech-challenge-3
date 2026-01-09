@@ -221,8 +221,39 @@ previsão de eventos extremos.
 
 ### Clusterização
 
-- Clusterização: Através do aprendizado não supervisionado, agrupamos aeroportos e rotas em "Zonas de Risco". Os resultados mostraram que o atraso não é distribuído de forma justa pela malha; ele se concentra em gargalos estruturais específicos.
+A clusterização foi feita com K-Means sobre rotas agregadas (origem-destino), usando `avg_delay`, `avg_distance` e `flight_count` com padronização (`StandardScaler`). O objetivo é agrupar rotas com comportamento operacional semelhante.
 
+#### Escolha do K (k=4)
+![alt text](images/image-11.png)
+*Figura 11 - Seleção do número de clusters. O ponto k=4 equilibra a queda de inércia (elbow) e o melhor silhouette.*
+
+- Avaliamos k de 2 a 10 com três critérios: **inércia (elbow)**, **silhouette** e **estabilidade** (ARI médio entre seeds).
+- A regra de decisão foi: 1) maior silhouette, 2) maior estabilidade, 3) menor k como desempate.
+- O k escolhido foi **4**, com **silhouette = 0,2858**, mantendo boa separação com complexidade controlada.
+
+#### Separação dos clusters (distância x atraso)
+![alt text](images/image-12.png)
+*Figura 12 - Dispersão das rotas por distância e atraso. O tamanho da bolha representa a frequência anual e os centróides estão em vermelho.*
+
+- **Eixo X:** `avg_distance`; **Eixo Y:** `avg_delay`; **tamanho da bolha:** `flight_count`.
+- O cluster **long haul** (Cluster 2) aparece isolado em distância elevada, enquanto o **Cluster 0** concentra atrasos acima da média (linha tracejada).
+- Os clusters regionais se sobrepõem em distância, mas se separam pelo nível de atraso médio e pela frequência.
+
+#### Heatmap de perfis (Z-score)
+Para interpretar os clusters, calculamos a média de `avg_delay`, `avg_distance` e `flight_count` por grupo e aplicamos **Z-score**.
+
+O heatmap coloca todas as variáveis na mesma escala: **vermelho = acima da média global**, **azul = abaixo**.
+
+Isso deixa claro quais clusters são mais críticos em atraso, quais concentram rotas longas e quais têm maior volume.
+
+#### Resumo dos clusters
+![alt text](images/image-13.png)
+*Figura 13 - Sumário executivo dos clusters com médias e exemplos representativos.*
+
+- **Cluster 0 (782 rotas):** atraso médio **15,4 min**, distância **972 milhas**, frequência **468 voos/ano**. **Interpretação:** rotas problemáticas (alto atraso). Exemplos: IAH->SFO, IAH->LGA, PBI->JFK.
+- **Cluster 1 (1477 rotas):** atraso médio **10,0 min**, distância **654 milhas**, frequência **2432 voos/ano**. **Interpretação:** regional/baixa densidade (frequência intermediária, atraso moderado). Exemplos: SFO->LAX, LAX->SFO, LAS->LAX.
+- **Cluster 2 (507 rotas):** atraso médio **8,5 min**, distância **2235 milhas**, frequência **975 voos/ano**. **Interpretação:** long haul / transcontinental. Exemplos: JFK->LAX, LAX->JFK, SFO->JFK.
+- **Cluster 3 (1301 rotas):** atraso médio **5,3 min**, distância **613 milhas**, frequência **583 voos/ano**. **Interpretação:** regional/baixa densidade com melhor pontualidade. Exemplos: YUM->PHX, RSW->CLT, SJC->SLC.
 
 -----------------------------------
 
