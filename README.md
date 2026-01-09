@@ -72,16 +72,16 @@ O pipeline de ciência de dados segue as seguintes etapas:
    - Análise de como o relógio e o mapa influenciam a pontualidade.
    - Identificação de padrões visíveis antes de usar os modelos.
 
-3. **Clusterização (Agrupamento)**
-   - Uso de Aprendizado Não Supervisionado para agrupar aeroportos/rotas com comportamentos similares.
-   - Objetivo: Identificar "Zonas de Risco" (ex: aeroportos que atrasam muito vs. aeroportos super pontuais).
-
-4. **Modelagem: Classificação e Regressão**
+3. **Modelagem: Classificação e Regressão**
    - Classificação: Prever se o voo vai atrasar (Sim/Não).
    - Regressão: Estimar o atraso de chegada em minutos utilizando o 
      **HistGradientBoostingRegressor**, escolhido por sua capacidade de lidar com
      não linearidade, interações entre variáveis e targets assimétricos.
    - Comparação entre XGBoost e LightGBM.
+
+4. **Clusterização (Agrupamento)**
+   - Uso de Aprendizado Não Supervisionado para agrupar rotas com comportamentos similares.
+   - Objetivo: Identificar "Zonas de Risco" (ex: rotas que atrasam muito vs. rotas super pontuais).
 
 5. **Veredito e Insights**
    - Identificação dos fatores que mais pesam na balança dos atrasos.
