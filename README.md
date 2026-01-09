@@ -176,11 +176,11 @@ A análise exploratória e os modelos desenvolvidos revelaram padrões consisten
 ## : 🏁 Conclusão: O Veredito do "Fugazi"
 
 ### O Sinal no Meio do Caos
-Este projeto começou com um desafio honesto: será que conseguimos prever atrasos sem saber o "básico" (clima, problemas técnicos ou greves)? A resposta é um sim surpreendente. Mesmo operando sob o efeito "Fugazi", onde os dados parecem incompletos, nossos modelos provaram que a malha aérea tem um DNA de atraso próprio e identificável.
+Este projeto começou com um desafio honesto: será que conseguimos prever atrasos sem saber o "básico" (clima, problemas técnicos ou greves)? A resposta é um sim. Mesmo operando sob o efeito "Fugazi", onde os dados parecem incompletos, nossos modelos provaram que a malha aérea tem um DNA de atraso próprio e identificável.
 
-### Performance e Modelagem: A Batalha dos Algoritmos
+### Performance e Modelagem
 
-Ao comparar os dois modelos principais, os números contam a história:
+Ao comparar os dois modelos principais:
 
 - XGBoost: Demonstrou uma sensibilidade maior com um Recall de 0,667. Ele é excelente para não deixar nenhum atraso passar despercebido, mas, por ser mais "agressivo", gerou cerca de 291 mil alarmes falsos.
 
@@ -190,9 +190,14 @@ O gráfico abaixo detalha essa comparação, mostrando como o LightGBM consegue 
 
 ![alt text](images/image-9.png)
 
-### Além da Classificação: Regressão e Clusters
+### Insights Classificação
 
-- **Regressão**: Para estimar o atraso de chegada em minutos, foi utilizado o
+Chegar a um ROC-AUC de 0,75 utilizando apenas dados de agendamento e histórico prova que o atraso não é apenas "azar": ele é sistêmico. Existe um risco estrutural embutido na escolha da companhia, da rota e, principalmente, do horário.
+Este projeto serve como uma base poderosa. Provamos que, mesmo partindo de dados limitados, conseguimos extrair padrões valiosos e transformar incerteza em risco calculado.
+
+### Regressão
+
+Para estimar o atraso de chegada em minutos, foi utilizado o
   **HistGradientBoostingRegressor**, um modelo baseado em boosting de árvores
   otimizado para grandes volumes de dados e relações não lineares.
 
@@ -201,22 +206,23 @@ O gráfico abaixo detalha essa comparação, mostrando como o LightGBM consegue 
   - **RMSE significativamente maior**, refletindo a presença de poucos atrasos extremos
     que inflacionam o erro quadrático.
 
-  Essa diferença entre MAE e RMSE evidencia a forte assimetria do target e reforça que
-  atrasos severos são eventos raros, influenciados por fatores não observáveis nos dados
-  pré-voo (ex.: clima e falhas operacionais inesperadas).
+Essa diferença entre MAE e RMSE evidencia a forte assimetria do target e reforça que atrasos severos são eventos raros, 
+influenciados por fatores não observáveis nos dados pré-voo (ex.: clima e falhas operacionais inesperadas).
 
-  Assim, o modelo é eficaz para capturar o comportamento dominante do sistema, mas
-  encontra limites naturais na previsão de eventos extremos.
+O gráfico abaixo mostra o valor real de atraso x valor previsto
+
+![alt text](images/image-10.png)
+
+### Insights Regressão
+
+Pela regressão, o modelo captura bem os atrasos típicos, enquanto eventos extremos permanecem limitados por fatores não observáveis.
+Assim, o modelo é eficaz para capturar o comportamento dominante do sistema, mas encontra limites naturais na 
+previsão de eventos extremos.
+
+### Clusterização
 
 - Clusterização: Através do aprendizado não supervisionado, agrupamos aeroportos e rotas em "Zonas de Risco". Os resultados mostraram que o atraso não é distribuído de forma justa pela malha; ele se concentra em gargalos estruturais específicos.
 
-### Insight Final
-
-Chegar a um ROC-AUC de 0,75 utilizando apenas dados de agendamento e histórico prova que o atraso não é apenas "azar": ele é sistêmico. Existe um risco estrutural embutido na escolha da companhia, da rota e, principalmente, do horário.
-
-Pela regressão, o modelo captura bem os atrasos típicos, enquanto eventos extremos permanecem limitados por fatores não observáveis.
-
-Este projeto serve como uma base poderosa. Provamos que, mesmo partindo de dados limitados, a ciência de dados consegue extrair padrões valiosos e transformar incerteza em risco calculado.
 
 -----------------------------------
 
