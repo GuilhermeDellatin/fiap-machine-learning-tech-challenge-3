@@ -1,7 +1,9 @@
 # FIAP Machine Learning Tech Challenge 3
 
 #### Visão Geral
-Este projeto é um experimento de linha de base (baseline) focado em identificar o "DNA do atraso" na malha aérea. O objetivo é aplicar técnicas de modelagem supervisionada e não supervisionada para entender quanto do atraso de um voo é puramente estrutural — ou seja, o quanto já está "escrito no destino" com base apenas na companhia, na rota e no horário, sem considerar fatores externos imprevisíveis (o fator "Fugazi").
+Este projeto é um experimento de linha de base (baseline) focado em identificar a causa raiz do atraso na malha aérea. 
+Aplicando técnicas de modelagem supervisionada e não supervisionada para entender quanto do atraso de um voo é 
+puramente estrutural — ou seja, com base apenas na companhia, na rota e no horário, sem considerar fatores externos imprevisíveis (o fator "Fugazi").
 
 Desenvolvemos um pipeline completo de ciência de dados, que inclui:
 
@@ -9,7 +11,8 @@ Desenvolvemos um pipeline completo de ciência de dados, que inclui:
 
 - Análise de Padrões: Investigação de tendências temporais e gargalos geográficos (hubs) que geram um "imposto de atraso" sistemático.
 
-- Machine Learning de Alta Performance: Comparação entre XGBoost e LightGBM para separar o sinal real do ruído estatístico.
+- Machine Learning de Alta Performance: Comparação entre XGBoost e LightGBM para separar o sinal real do ruído estatístico, 
+HistGradientBoostingRegressor, otimizado para grandes volumes de dados e relações não lineares e Kmeans para clusterização.
 
 - Insights Acionáveis: Interpretação dos resultados para identificar quais variáveis estruturais (como aeroportos de origem ou janelas de decolagem) são os maiores preditores de risco, independentemente de fatores climáticos.
 
@@ -46,7 +49,8 @@ Utilizamos análise exploratória de dados (EDA), engenharia de atributos e visu
 
 - Performance de Hubs: A relação entre aeroportos específicos e o desempenho operacional acumulado.
 
-Com base nestes pilares, desenvolvemos modelos de aprendizado supervisionado capazes de estimar a probabilidade de atraso. O resultado é uma ferramenta que quantifica o risco estrutural, servindo de base para uma tomada de decisão mais inteligente e uma compreensão clara da eficiência da malha aérea.
+Com base nestes pilares, desenvolvemos modelos de aprendizado supervisionado e não supervisionado capazes de estimar a 
+probabilidade de atraso, tempo e agrupar rotas com perfis semelhantes. O resultado é uma ferramenta que quantifica o risco estrutural, servindo de base para uma tomada de decisão mais inteligente e uma compreensão clara da eficiência da malha aérea.
 
 -----------------------------------
 
@@ -57,7 +61,7 @@ Com base nestes pilares, desenvolvemos modelos de aprendizado supervisionado cap
 - Listar os aeroportos e rotas que mais sofrem com a falta de pontualidade.
 - Criar modelos de inteligência artificial para calcular a chance de um voo atrasar.
 - Comparar dois modelos (XGBoost e LightGBM) para ver qual é mais preciso.
-
+- Criar modelos de inteligência artificial para agrupar rotas áreas com características semelhantes.
 -----------------------------------
 
 ## Estrutura da Análise
@@ -173,10 +177,9 @@ A análise exploratória e os modelos desenvolvidos revelaram padrões consisten
 - Variáveis relacionadas ao horário do voo, ao histórico operacional e ao contexto da rota e dos aeroportos são essenciais para capturar o risco estrutural de atraso.
 - A distinção entre atrasos típicos e atrasos extremos é fundamental, pois eventos severos apresentam maior variabilidade e impõem limites naturais ao desempenho e à interpretação dos modelos preditivos.
 
-## : 🏁 Conclusão: O Veredito do "Fugazi"
+## Conclusão
 
-### O Sinal no Meio do Caos
-Este projeto começou com um desafio honesto: será que conseguimos prever atrasos sem saber o "básico" (clima, problemas técnicos ou greves)? A resposta é um sim. Mesmo operando sob o efeito "Fugazi", onde os dados parecem incompletos, nossos modelos provaram que a malha aérea tem um DNA de atraso próprio e identificável.
+Este projeto começou com um desafio honesto: será que conseguimos prever atrasos sem saber o "básico" (clima, problemas técnicos ou greves)? A resposta é sim. Mesmo operando sob o efeito "Fugazi", onde os dados parecem incompletos, nossos modelos provaram que a malha aérea tem um DNA de atraso próprio e identificável.
 
 ### Performance e Modelagem
 
