@@ -25,10 +25,12 @@ O resultado final não é apenas uma previsão, mas uma análise profunda da efi
 
 ## Sumário
 
-- [Descrição](#descrição)
+- [Escopo e Metodologia](#escopo-e-Metodologia)
 - [Objetivos do Projeto](#objetivos-do-projeto)
 - [Estrutura da Análise](#estrutura-da-análise)
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
+- [Análise exploratória](#análise-exploratória-eda)
+- [Conclusão](#conclusão)
 - [Licença e Autores](#licença-e-autores)
 
 -----------------------------------
@@ -103,7 +105,7 @@ O pipeline de ciência de dados segue as seguintes etapas:
 
 -----------------------------------
 
-## Principais Achados (EDA)
+## Análise Exploratória (EDA)
 
 A análise exploratória e os modelos desenvolvidos revelaram padrões consistentes e relevantes sobre o comportamento dos atrasos de voos, tanto em situações rotineiras quanto em cenários de disrupção extrema.
 
@@ -247,10 +249,12 @@ Para interpretar os clusters, calculamos a média de `avg_delay`, `avg_distance`
 
 O heatmap coloca todas as variáveis na mesma escala: **vermelho = acima da média global**, **azul = abaixo**.
 
+![alt text](images/image-13.png)
+
 Isso deixa claro quais clusters são mais críticos em atraso, quais concentram rotas longas e quais têm maior volume.
 
 #### Resumo dos clusters
-![alt text](images/image-13.png)
+![alt text](images/image-14.png)
 *Figura 13 - Sumário executivo dos clusters com médias e exemplos representativos.*
 
 - **Cluster 0 (782 rotas):** atraso médio **15,4 min**, distância **972 milhas**, frequência **468 voos/ano**. **Interpretação:** rotas problemáticas (alto atraso). Exemplos: IAH->SFO, IAH->LGA, PBI->JFK.
