@@ -85,7 +85,7 @@ O pipeline de ciência de dados segue as seguintes etapas:
 
 4. **Clusterização (Agrupamento)**
    - Uso de Aprendizado Não Supervisionado para agrupar rotas com comportamentos similares.
-   - Objetivo: Identificar "Zonas de Risco" (ex: rotas que atrasam muito vs. rotas super pontuais).
+   - Objetivo: Agrupar rotas que atrasam muito(transcontinentais, pontes areas, rotas problemas), rotas com mais volume de voo, entre outros.
 
 5. **Veredito e Insights**
    - Identificação dos fatores que mais pesam na balança dos atrasos.
